@@ -1,6 +1,6 @@
 [package]
 name = "passage-auth"
-version = "0.1.0"
+version = "0.1.1"
 description = "Authentication API for Passage by 1Password"
 repository = "https://github.com/Kindness-Works/passage-rs/passage-auth"
 license = "MIT"
@@ -16,7 +16,6 @@ serde_with = { version = "^3.8", default-features = false, features = [
 serde_json = "^1.0"
 url = "^2.5"
 reqwest = { version = "^0.12", features = ["json", "multipart"] }
-derive_builder = "0.20.0"
 thiserror = "1.0.61"
 jsonwebkey = { version = "0.3.5", features = ["jwt-convert"] }
 jsonwebtoken = { version = "8.2.0", default-features = false }
