@@ -30,7 +30,7 @@ impl Passage<Config> {
 }
 
 impl Passage<Config> {
-    /// Create client with a custom HTTP client, OpenAI config, and backoff.
+    /// Create client with a custom HTTP client if needed.
     pub fn build(http_client: reqwest::Client, config: Config) -> Self {
         Self {
             http_client,

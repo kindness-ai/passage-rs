@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="500px" src="./github/passage.jpg" />
+  <img width="500px" src="https://github.com/Kindness-Works/passage-rs/blob/main/.github/passage.jpg" />
 </div>
 <h1 align="center"> passage-auth </h1>
 <p align="center"> Passage Authentication Library for Rust! 🦀 </p>
@@ -14,7 +14,7 @@
 
 `passage-auth` is an unofficial Rust library for [Passage by 1Password](https://passage.1password.com/).
 
-- It's strictly following the [Passsage Authentication API](https://docs.passage.id/api-docs/authentication-api).
+- It's strictly following the [Passage Authentication API](https://docs.passage.id/api-docs/authentication-api).
 
 - Current features:
   - [x] Apps
@@ -39,7 +39,7 @@ Models were automatically generated thanks to [OpenAPI Generator](https://openap
 
 ## Usage
 
-The library reads your Passage APP ID from the environment variable `PASSAGE_APP_ID` and optionally a API key from `PASSAGE_API_KEY`. But you can also pass a Config object or use the Config builder to create the Passsage client.
+The library reads your Passage APP ID from the environment variable `PASSAGE_APP_ID` and optionally a API key from `PASSAGE_API_KEY`. But you can also pass a Config object or use the Config builder to create the Passage client.
 
 # Verify a JWT
 
@@ -82,4 +82,4 @@ let response = passage.tokens().revoke_refresh_token(refresh_token)
 
 ## License
 
-This project is licensed under [MIT license](https://github.com/64bit/async-openai/blob/main/LICENSE).
+This project is licensed under [MIT license](https://github.com/Kindness-Works/passage-rs/blob/main/LICENSE).
