@@ -1,0 +1,6 @@
+[workspace]
+members = [
+    "passage-auth",
+    # Coming soon... "passage-manage",
+]
+resolver = "2"
