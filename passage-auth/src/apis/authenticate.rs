@@ -10,36 +10,12 @@ use crate::{
         authenticate_web_authn_start_with_transaction_request::AuthenticateWebAuthnStartWithTransactionRequest,
         authenticate_web_authn_start_with_transaction_response::AuthenticateWebAuthnStartWithTransactionResponse,
         Nonce,
-    },
-    Config, Passage, PassageError,
+    }, AuthError, Config, Passage, PassageError
 };
 
 #[derive(Debug, Deserialize)]
 struct Claims {
     sub: String,
-}
-
-/// The error type for possible authentication failures when validating a JWT.
-#[derive(Debug, PartialEq)]
-pub enum AuthError {
-    /// Failed to decode the header of the Passage JWT
-    /// (e.g. the `psg_auth_token` cookie value).
-    /// See associated `jwt::errors::Error` for details.
-    TokenHeaderDecoding(jwt::errors::Error),
-
-    /// Key IDs of public JWK and Passage JWT do not match
-    KidMismatch(Option<String>, Option<String>),
-
-    /// Public JWK was not provided
-    PubKeyMissing,
-
-    /// Failed to parse the provided public JWK
-    PubKeyParsing(String),
-
-    /// Failed to decode and validate the Passage JWT
-    /// (e.g. the `psg_auth_token` cookie value).
-    /// See associated `jwt::errors::Error` for details.
-    TokenDecoding(jwt::errors::Error),
 }
 
 pub struct Authenticate<'c, Config> {

@@ -29,5 +29,5 @@ mod models;
 mod passage;
 
 pub use config::Config;
-pub use error::PassageError;
+pub use error::*;
 pub use passage::Passage;

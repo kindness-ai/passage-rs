@@ -1,3 +1,6 @@
+use std::fmt;
+
+use jsonwebtoken as jwt;
 use serde::Deserialize;
 
 use crate::models;
@@ -17,6 +20,9 @@ pub enum PassageError {
     /// or when builder fails to build request before making API call
     #[error("invalid args: {0}")]
     InvalidArgument(String),
+    // Authentication failures when validating a JWT.
+    #[error("failed to authenticate: {0}")]
+    AuthError(AuthError),
 }
 
 /// The Passage API returns an error enum that can contain various
@@ -36,5 +42,51 @@ pub enum ApiError {
 impl From<ApiError> for PassageError {
     fn from(e: ApiError) -> Self {
         PassageError::ApiError(e)
+    }
+}
+
+/// The error type for possible authentication failures when validating a JWT.
+#[derive(Debug, PartialEq)]
+pub enum AuthError {
+    /// Failed to decode the header of the Passage JWT
+    /// (e.g. the `psg_auth_token` cookie value).
+    /// See associated `jwt::errors::Error` for details.
+    TokenHeaderDecoding(jwt::errors::Error),
+
+    /// Key IDs of public JWK and Passage JWT do not match
+    KidMismatch(Option<String>, Option<String>),
+
+    /// Public JWK was not provided
+    PubKeyMissing,
+
+    /// Failed to parse the provided public JWK
+    PubKeyParsing(String),
+
+    /// Failed to decode and validate the Passage JWT
+    /// (e.g. the `psg_auth_token` cookie value).
+    /// See associated `jwt::errors::Error` for details.
+    TokenDecoding(jwt::errors::Error),
+}
+
+impl fmt::Display for AuthError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        match self {
+            AuthError::TokenHeaderDecoding(e) => {
+                write!(f, "Failed to decode the header of the Passage JWT: {}", e)
+            }
+            AuthError::KidMismatch(kid1, kid2) => write!(
+                f,
+                "Key IDs of public JWK and Passage JWT do not match: {} vs {}",
+                kid1.as_deref().unwrap_or("None"),
+                kid2.as_deref().unwrap_or("None")
+            ),
+            AuthError::PubKeyMissing => write!(f, "Public JWK was not provided"),
+            AuthError::PubKeyParsing(e) => {
+                write!(f, "Failed to parse the provided public JWK: {}", e)
+            }
+            AuthError::TokenDecoding(e) => {
+                write!(f, "Failed to decode and validate the Passage JWT: {}", e)
+            }
+        }
     }
 }
