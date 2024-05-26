@@ -28,8 +28,8 @@
   - [x] Register
   - [x] Tokens
   - [x] Users
-  - [] OAuth2
-  - [] Passkey Readiness (Not planning to add support)
+  - [ ] OAuth2
+  - [ ] Passkey Readiness (Not planning to add support)
 
 Models were automatically generated thanks to [OpenAPI Generator](https://openapi-generator.tech). The rest of the auth API was built by your friends at [Kindness](https://kindness.ai). With some prior art for the validation function from our friend [Rob Yoder](https://github.com/robyoder/passage-rust/blob/main/src/lib.rs).
 
