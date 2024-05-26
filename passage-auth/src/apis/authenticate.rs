@@ -1,7 +1,5 @@
 use std::fmt::format;
 
-use jsonwebkey as jwk;
-use jsonwebtoken as jwt;
 use serde::Deserialize;
 
 use crate::{
@@ -10,7 +8,8 @@ use crate::{
         authenticate_web_authn_start_with_transaction_request::AuthenticateWebAuthnStartWithTransactionRequest,
         authenticate_web_authn_start_with_transaction_response::AuthenticateWebAuthnStartWithTransactionResponse,
         Nonce,
-    }, AuthError, Config, Passage, PassageError
+    },
+    AuthError, Config, Passage, PassageError,
 };
 
 #[derive(Debug, Deserialize)]
@@ -62,20 +61,21 @@ impl<'c> Authenticate<'c, Config> {
     /// When successful, the resulting `String` is the authenticated Passage
     /// user ID. See [Validation Passage JWTs](https://docs.passage.id/backend/overview/other#validation-passage-jwts) for details.
     pub fn authenticate_token(&self, token: &str) -> Result<String, AuthError> {
+        use jsonwebtoken::{decode, decode_header, jwk::Jwk, Algorithm, DecodingKey, Validation};
+
         let pub_jwk = self.client.pub_jwk().ok_or(AuthError::PubKeyMissing)?;
 
-        let key = pub_jwk
-            .parse::<jwk::JsonWebKey>()
-            .map_err(|e| AuthError::PubKeyParsing(e.to_string()))?;
+        let key: Jwk =
+            serde_json::from_str(pub_jwk).map_err(|e| AuthError::PubKeyParsing(e.to_string()))?;
 
-        let header = jwt::decode_header(token).map_err(AuthError::TokenHeaderDecoding)?;
+        let header = decode_header(token).map_err(AuthError::TokenHeaderDecoding)?;
 
-        if header.kid != key.key_id {
-            return Err(AuthError::KidMismatch(header.kid, key.key_id));
+        if header.kid != key.common.key_id {
+            return Err(AuthError::KidMismatch(header.kid, key.common.key_id));
         }
 
         let expected_iss = format!("https://auth.passage.id/v1/apps/{}", self.client.app_id());
-        let mut validation = jwt::Validation::new(jwt::Algorithm::RS256);
+        let mut validation = Validation::new(Algorithm::RS256);
         validation
             .required_spec_claims
             .extend(["exp", "iss", "nbf", "sub"].into_iter().map(String::from));
@@ -84,7 +84,8 @@ impl<'c> Authenticate<'c, Config> {
         validation.leeway = 0;
         validation.set_issuer(&[expected_iss]);
 
-        let token = jwt::decode::<Claims>(token, &key.key.to_decoding_key(), &validation)
+        let decoding_key = DecodingKey::from_jwk(&key).map_err(AuthError::TokenDecoding)?;
+        let token = decode::<Claims>(token, &decoding_key, &validation)
             .map_err(AuthError::TokenDecoding)?;
 
         Ok(token.claims.sub)
