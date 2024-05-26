@@ -54,7 +54,7 @@ mod tests {
         let client =
             Passage::with_config(Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()));
         let response = client
-            .user()
+            .users()
             .get_user("ted@tedlasso.org".into())
             .await
             .unwrap();
@@ -71,7 +71,7 @@ mod tests {
         let client =
             Passage::with_config(Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()));
         let response = client
-            .user()
+            .users()
             .get_user("rupert.mannion@tedlasso.org".into())
             .await
             .unwrap();
@@ -95,7 +95,7 @@ mod tests {
             .to_lowercase();
 
         let response = client
-            .user()
+            .users()
             .create_user(CreateUserParams::new(format!("{local_part}@tedlasso.org")))
             .await
             .unwrap();

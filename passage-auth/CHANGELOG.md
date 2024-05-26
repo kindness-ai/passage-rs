@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.0 (2024-05-26)
+
+- Changed `passage.user()` to `passage.users()` to accurately reflect the correct endpoint name
+
 ## 0.1.4 (2024-05-26)
 
 - Resubmitting to crates.io

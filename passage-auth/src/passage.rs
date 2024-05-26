@@ -108,7 +108,7 @@ impl Passage<Config> {
     }
 
     /// To call [Users] group related APIs using this client.
-    pub fn user(&self) -> Users<Config> {
+    pub fn users(&self) -> Users<Config> {
         Users::new(self)
     }
 
