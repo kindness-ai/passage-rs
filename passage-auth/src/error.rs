@@ -68,6 +68,12 @@ pub enum AuthError {
     TokenDecoding(jwt::errors::Error),
 }
 
+impl From<jwt::errors::Error> for AuthError {
+    fn from(e: jwt::errors::Error) -> Self {
+        AuthError::TokenDecoding(e)
+    }
+}
+
 impl fmt::Display for AuthError {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         match self {

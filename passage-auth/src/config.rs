@@ -8,6 +8,9 @@ pub struct Config {
     api_base: String,
     api_key: Option<String>,
     app_id: String,
+    app_auth_origin: String,
+    // TODO: We should probably store the key instead of a string for earlier
+    // validation and performance
     pub_jwk: Option<String>,
     user_bearer_token: Option<String>,
 }
@@ -16,8 +19,13 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             api_base: PASSAGE_AUTH_API_BASE.into(),
+            // TODO: We could load this from passage using the app_id
+            app_auth_origin: std::env::var("PASSAGE_APP_AUTH_ORIGIN")
+                .unwrap_or_else(|_| "".to_string()),
             api_key: std::env::var("PASSAGE_API_KEY").ok(),
+            // TODO: Maybe make this required
             app_id: std::env::var("PASSAGE_APP_ID").unwrap_or_else(|_| "".to_string()),
+            // TODO: We could load this from passage using the app_id
             pub_jwk: std::env::var("PASSAGE_PUB_JWK").ok(),
             user_bearer_token: None,
         }
@@ -44,6 +52,11 @@ impl Config {
 
     pub fn with_app_id(mut self, app_id: String) -> Self {
         self.app_id = app_id;
+        self
+    }
+
+    pub fn with_app_auth_origin(mut self, auth_origin: String) -> Self {
+        self.app_auth_origin = auth_origin;
         self
     }
 
@@ -99,6 +112,10 @@ impl Config {
             );
         }
         headers
+    }
+
+    pub fn app_auth_origin(&self) -> &str {
+        &self.app_auth_origin
     }
 
     pub fn app_id(&self) -> &str {

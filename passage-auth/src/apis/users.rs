@@ -63,11 +63,7 @@ mod tests {
         let client = Passage::with_config(
             Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()),
         );
-        let response = client
-            .users()
-            .get_user("ted@tedlasso.org".into())
-            .await
-            .unwrap();
+        let response = client.users().get_user("ted@tedlasso.org").await.unwrap();
 
         let user = response
             .user
@@ -75,7 +71,7 @@ mod tests {
 
         assert_eq!(user.id, "AabRBkquedeVBxv9kFyfeXHI");
         assert_eq!(user.email, "ted@tedlasso.org");
-        assert_eq!(user.email_verified, true);
+        assert!(user.email_verified);
     }
 
     #[tokio::test]
@@ -85,7 +81,7 @@ mod tests {
         );
         let response = client
             .users()
-            .get_user("rupert.mannion@tedlasso.org".into())
+            .get_user("rupert.mannion@tedlasso.org")
             .await
             .unwrap();
 
@@ -116,7 +112,7 @@ mod tests {
         let user = response.user.expect("We should be able to create an account, unless the email is already taken or the server is down.");
 
         assert_eq!(user.email, format!("{local_part}@tedlasso.org"));
-        assert_eq!(user.email_verified, false);
+        assert!(!user.email_verified);
     }
 
     #[tokio::test]
@@ -129,7 +125,7 @@ mod tests {
 
         let _ = client
             .users()
-            .get_user_by_id("AabRBkquedeVBxv9kFyfeXHI".into())
+            .get_user_by_id("AabRBkquedeVBxv9kFyfeXHI")
             .await;
     }
 }

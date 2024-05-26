@@ -58,8 +58,9 @@ impl<'c> Authenticate<'c> {
     }
 
     /// Verifies the Passage authentication token.
+    ///
     /// When successful, the resulting `String` is the authenticated Passage
-    /// user ID. See [Validation Passage JWTs](https://docs.passage.id/backend/overview/other#validation-passage-jwts) for details.
+    /// user ID.
     pub fn authenticate_token(&self, token: &str) -> Result<String, AuthError> {
         use jsonwebtoken::{decode, decode_header, jwk::Jwk, Algorithm, DecodingKey, Validation};
 
@@ -67,23 +68,25 @@ impl<'c> Authenticate<'c> {
         let jwk: Jwk =
             serde_json::from_str(jwk).map_err(|e| AuthError::PubKeyParsing(e.to_string()))?;
 
-        let header = decode_header(token).map_err(AuthError::TokenHeaderDecoding)?;
+        let header = decode_header(token)?;
         if header.kid != jwk.common.key_id {
             return Err(AuthError::KidMismatch(header.kid, jwk.common.key_id));
         }
+
         let expected_iss = format!("https://auth.passage.id/v1/apps/{}", self.client.app_id());
         let mut validation = Validation::new(Algorithm::RS256);
-        validation
-            .required_spec_claims
-            .extend(["exp", "iss", "nbf", "sub"].into_iter().map(String::from));
-        validation.validate_exp = true;
-        validation.validate_nbf = true;
         validation.leeway = 0;
+        validation.required_spec_claims.extend(
+            ["aud", "exp", "iss", "nbf", "sub"]
+                .into_iter()
+                .map(String::from),
+        );
+        validation.set_audience(&[self.client.app_auth_origin()]);
         validation.set_issuer(&[expected_iss]);
+        validation.validate_nbf = true;
 
-        let decoding_key = DecodingKey::from_jwk(&jwk).map_err(AuthError::TokenDecoding)?;
-        let token = decode::<Claims>(token, &decoding_key, &validation)
-            .map_err(AuthError::TokenDecoding)?;
+        let decoding_key = DecodingKey::from_jwk(&jwk)?;
+        let token = decode::<Claims>(token, &decoding_key, &validation)?;
 
         Ok(token.claims.sub)
     }
@@ -91,7 +94,10 @@ impl<'c> Authenticate<'c> {
 
 #[cfg(test)]
 mod tests {
+    use jsonwebtoken::jwk;
+
     use super::*;
+    use crate::passage;
 
     #[test]
     fn set_pub_jwk() {
@@ -112,7 +118,7 @@ mod tests {
 
     #[test]
     fn reject_missing_pub_key() {
-        let passage: Passage<Config> = Passage::default();
+        let passage: Passage = Passage::default();
 
         let jwt: &str = "eyJraWQiOiJyNTB2S3VrSmw0b1ZhVDc4TzBFTElHUzR3OHluTVlfNGxSU0JxLXV2VFg0IiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmJmIjoxNjc1NDYxNjg4LCJpc3MiOiJodHRwczovL2F1dGgucGFzc2FnZS5pZC92MS9hcHBzL2Zha2UiLCJleHAiOjIwMDAwMDAwMDB9.hPDcPU5Y84MTiQZ9uZ0aJqxzLEBQiD9F2xWeZINGIKbwehHudExV0MoqoLxHnpUcGIKPIaW0FjCDCZcJA2dGoLC6n-X8l7qUgMJBbbCIEtNhQNMe4AIlEpsmk3t83WNXSQVeh2fKBAJ1X_oad1RRNuQUgCam6MMJx8m3AozPBAXcGjS6D_pJ7N0oPEm5uNq_nSx0GqF0aEUMRiTqG1mY7f8mJtch7vJqxwWPlBZ32lrPmW0xswYLEx2sVZTnYFZqroZH31KePIpHoawrFTNuHQAsSCd1hI8Fj2gZ0ZfT8MFKftbx7_1Pum4KwK4eMv-W2urPsFH3-uU2G0wOaAi-yQ";
         let res = passage.authenticate().authenticate_token(jwt);
@@ -125,7 +131,7 @@ mod tests {
 
     #[test]
     fn reject_bad_signature() {
-        let passage: Passage<Config> = Passage::default().set_pub_jwk(PUB_JWK.to_string());
+        let passage: Passage = Passage::default().set_pub_jwk(PUB_JWK.to_string());
 
         let jwt: &str = "eyJraWQiOiJyNTB2S3VrSmw0b1ZhVDc4TzBFTElHUzR3OHluTVlfNGxSU0JxLXV2VFg0IiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmJmIjoxNjc1NDYxNjg4LCJpc3MiOiJodHRwczovL2F1dGgucGFzc2FnZS5pZC92MS9hcHBzL2Zha2UiLCJleHAiOjIwMDAwMDAwMDB9.Pxj_GZChf9Cx70QAIpUpAPkJVFErhkxYrJCF3XHLyBdStWy17BrVVhnR2GBG5DCHOmI9jleUre-PUokETTu_nqAGhPB1fulouZUZwZPgJqS6kxQf4VSjumgTDUdmKyptAL2Yo1HOd-bqJrrSrLEST1iQgnWWuHmRcztQn89AxAGJkycAG6Pj8ot7qp3LC6xgOzlqL4mEqgLPNw-R_U_9Zr7Pqy8IbVWBxPz1rF9mPKPib1CLCQ_Jk_Ncmq_LyP70otyssmIEDvAovJn8tSsdIho9W4qGvSpHKeqZTxN0xJq-2KUXnORgrGOVu3cudc7SXmw31g3ZcRY09NUO0Q2uTg";
         let res = passage.authenticate().authenticate_token(jwt);
@@ -248,16 +254,21 @@ mod tests {
         }
     }
 
-    #[test]
-    fn authenticate_good_token() {
-        let passage = Passage::with_config(Config::default().with_app_id("fake".to_string()))
-            .set_pub_jwk(PUB_JWK.to_string());
+    #[tokio::test]
+    async fn authenticate_with_real_passage_token() {
+        let passage = Passage::with_config(
+            Config::default()
+                .with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string())
+                .with_app_auth_origin("https://tedlasso.org".to_string()),
+        );
+        let jwks = passage.jwks().get_jwks().await.unwrap();
+        let passage = passage.set_pub_jwk(serde_json::to_string(&jwks.keys[0]).unwrap());
 
-        let jwt = "eyJraWQiOiJyNTB2S3VrSmw0b1ZhVDc4TzBFTElHUzR3OHluTVlfNGxSU0JxLXV2VFg0IiwiYWxnIjoiUlMyNTYiLCJ0eXAiOiJKV1QifQ.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmJmIjoxNjc1NDYxNjg4LCJpc3MiOiJodHRwczovL2F1dGgucGFzc2FnZS5pZC92MS9hcHBzL2Zha2UiLCJleHAiOjIwMDAwMDAwMDB9.hPDcPU5Y84MTiQZ9uZ0aJqxzLEBQiD9F2xWeZINGIKbwehHudExV0MoqoLxHnpUcGIKPIaW0FjCDCZcJA2dGoLC6n-X8l7qUgMJBbbCIEtNhQNMe4AIlEpsmk3t83WNXSQVeh2fKBAJ1X_oad1RRNuQUgCam6MMJx8m3AozPBAXcGjS6D_pJ7N0oPEm5uNq_nSx0GqF0aEUMRiTqG1mY7f8mJtch7vJqxwWPlBZ32lrPmW0xswYLEx2sVZTnYFZqroZH31KePIpHoawrFTNuHQAsSCd1hI8Fj2gZ0ZfT8MFKftbx7_1Pum4KwK4eMv-W2urPsFH3-uU2G0wOaAi-yQ";
+        let jwt = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlBtUkJVeVFkUGZ0eHVJS2E2ZGxtR01aQSIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL3RlZGxhc3NvLm9yZyIsImV4cCI6MTc0ODI3NDM3MSwiaWF0IjoxNzE2NzM4MzcxLCJpc3MiOiJodHRwczovL2F1dGgucGFzc2FnZS5pZC92MS9hcHBzL1BhSXRPSDdVbDduMlh0M3V4WTY3MXNGTiIsIm5iZiI6MTcxNjczODM2Niwic3ViIjoiQWFiUkJrcXVlZGVWQnh2OWtGeWZlWEhJIn0.uTEXEXOggvfRwVpwIbnR9gLD-l2j-4pONTukGNt6c32jBDNTnoNXIjQrQl6qaIrNEIDhhbbcirsmtxBwZ5bbOWSyNU5oG7qnYoilur0c1XtoaEBk9gjhMeZ-n5pXo45UyCQoJZwElGPWIZARzfuXJdttYam-JCb7ZSPL3gl8b0IJnwYZdB4DhB6O2-mkOfa-TAbt2IIqgHSdZTTwOF5_LKMwL5DNAgxyBGG1XaprODFaXJq8Obwef7u58bRCTlejHpHiS7hBEgU6Y4Lym9fen9DpvNSOCEFXJRL9RDNAv7B8oad83zNqgBAstqWsPZOHcG_BOAjdfHs4YQ83FAIGeA";
         let res = passage.authenticate().authenticate_token(jwt);
 
         dbg!(&res);
-        assert_eq!(res, Ok("1234567890".to_owned()));
+        assert_eq!(res, Ok("AabRBkquedeVBxv9kFyfeXHI".to_owned()));
     }
 }
 
