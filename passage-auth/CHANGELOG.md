@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 (2024-05-26)
+
+- Fixed: `authenticate().authenticate_token` error not wrapped in `PassageError`
+
 ## 0.3.0 (2024-05-26)
 
 - Added audience validation for JWTs. This requires either setting the PASSAGE_APP_AUTH_ORIGIN environment variable or configuring it within the application settings.

@@ -68,9 +68,15 @@ pub enum AuthError {
     TokenDecoding(jwt::errors::Error),
 }
 
-impl From<jwt::errors::Error> for AuthError {
+impl From<jwt::errors::Error> for PassageError {
     fn from(e: jwt::errors::Error) -> Self {
-        AuthError::TokenDecoding(e)
+        AuthError::TokenDecoding(e).into()
+    }
+}
+
+impl From<AuthError> for PassageError {
+    fn from(e: AuthError) -> Self {
+        PassageError::AuthError(e)
     }
 }
 

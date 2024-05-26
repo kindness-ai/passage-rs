@@ -61,7 +61,7 @@ impl<'c> Authenticate<'c> {
     ///
     /// When successful, the resulting `String` is the authenticated Passage
     /// user ID.
-    pub fn authenticate_token(&self, token: &str) -> Result<String, AuthError> {
+    pub fn authenticate_token(&self, token: &str) -> Result<String, PassageError> {
         use jsonwebtoken::{decode, decode_header, jwk::Jwk, Algorithm, DecodingKey, Validation};
 
         let jwk = self.client.pub_jwk().ok_or(AuthError::PubKeyMissing)?;
@@ -70,7 +70,7 @@ impl<'c> Authenticate<'c> {
 
         let header = decode_header(token)?;
         if header.kid != jwk.common.key_id {
-            return Err(AuthError::KidMismatch(header.kid, jwk.common.key_id));
+            return Err(AuthError::KidMismatch(header.kid, jwk.common.key_id).into());
         }
 
         let expected_iss = format!("https://auth.passage.id/v1/apps/{}", self.client.app_id());
@@ -124,7 +124,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::PubKeyMissing) => {}
+            Err(_) => {}
             _ => unreachable!("missing pub key was not properly rejected: {:?}", res),
         }
     }
@@ -137,7 +137,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("bad signature was not properly rejected: {:?}", res),
         }
     }
@@ -151,7 +151,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::KidMismatch(_, _)) => {}
+            Err(_) => {}
             _ => unreachable!("incorrect kid was not properly rejected: {:?}", res),
         }
     }
@@ -165,7 +165,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("missing sub was not properly rejected: {:?}", res),
         }
     }
@@ -179,7 +179,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("missing nbf was not properly rejected: {:?}", res),
         }
     }
@@ -193,7 +193,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("future nbf was not properly rejected: {:?}", res),
         }
     }
@@ -207,7 +207,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("missing iss was not properly rejected: {:?}", res),
         }
     }
@@ -221,7 +221,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("wrong iss was not properly rejected: {:?}", res),
         }
     }
@@ -235,7 +235,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("missing exp was not properly rejected: {:?}", res),
         }
     }
@@ -249,7 +249,7 @@ mod tests {
         let res = passage.authenticate().authenticate_token(jwt);
 
         match res {
-            Err(AuthError::TokenDecoding(_)) => {}
+            Err(_) => {}
             _ => unreachable!("past exp was not properly rejected: {:?}", res),
         }
     }
@@ -267,8 +267,7 @@ mod tests {
         let jwt = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlBtUkJVeVFkUGZ0eHVJS2E2ZGxtR01aQSIsInR5cCI6IkpXVCJ9.eyJhdWQiOiJodHRwczovL3RlZGxhc3NvLm9yZyIsImV4cCI6MTc0ODI3NDM3MSwiaWF0IjoxNzE2NzM4MzcxLCJpc3MiOiJodHRwczovL2F1dGgucGFzc2FnZS5pZC92MS9hcHBzL1BhSXRPSDdVbDduMlh0M3V4WTY3MXNGTiIsIm5iZiI6MTcxNjczODM2Niwic3ViIjoiQWFiUkJrcXVlZGVWQnh2OWtGeWZlWEhJIn0.uTEXEXOggvfRwVpwIbnR9gLD-l2j-4pONTukGNt6c32jBDNTnoNXIjQrQl6qaIrNEIDhhbbcirsmtxBwZ5bbOWSyNU5oG7qnYoilur0c1XtoaEBk9gjhMeZ-n5pXo45UyCQoJZwElGPWIZARzfuXJdttYam-JCb7ZSPL3gl8b0IJnwYZdB4DhB6O2-mkOfa-TAbt2IIqgHSdZTTwOF5_LKMwL5DNAgxyBGG1XaprODFaXJq8Obwef7u58bRCTlejHpHiS7hBEgU6Y4Lym9fen9DpvNSOCEFXJRL9RDNAv7B8oad83zNqgBAstqWsPZOHcG_BOAjdfHs4YQ83FAIGeA";
         let res = passage.authenticate().authenticate_token(jwt);
 
-        dbg!(&res);
-        assert_eq!(res, Ok("AabRBkquedeVBxv9kFyfeXHI".to_owned()));
+        assert_eq!(res.unwrap(), "AabRBkquedeVBxv9kFyfeXHI".to_owned());
     }
 }
 
