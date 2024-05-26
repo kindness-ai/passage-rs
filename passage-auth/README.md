@@ -14,7 +14,7 @@
 
 `passage-auth` is an unofficial Rust library for [Passage by 1Password](https://passage.1password.com/).
 
-- It's strictly following the [Passage Authentication API](https://docs.passage.id/api-docs/authentication-api).
+- It strictly follows the [Passage Authentication API](https://docs.passage.id/api-docs/authentication-api).
 
 - Current features:
   - [x] Apps
@@ -35,11 +35,12 @@ Models were automatically generated thanks to [OpenAPI Generator](https://openap
 
 > [!WARNING]  
 > This crate is brand new and not all features have been tested or documented.
+> 
 > Expect breaking changes.
 
 ## Usage
 
-The library reads your Passage APP ID from the environment variable `PASSAGE_APP_ID` and optionally a API key from `PASSAGE_API_KEY`. But you can also pass a Config object or use the Config builder to create the Passage client.
+The library reads your Passage APP ID from the environment variable `PASSAGE_APP_ID` and optionally a JSON Web Key (JWK) to verify tokens from `PASSAGE_PUB_JWK`. You can also pass a `Config` object or use the `Config` builder to create the Passage client.
 
 # Verify a JWT
 
@@ -47,9 +48,9 @@ The library reads your Passage APP ID from the environment variable `PASSAGE_APP
 // Create a new passage instance
 let passage = Passage::with_config(Config::default().with_app_id(APP_ID.to_string()));
 
-// Get the JWKS for your Passage app containing the use the JWK's public key to verify a user's JWT.
+// Retrieve the JSON Web Key Set (JWKS) for your Passage application. 
 let response: JwkResponse = passage.jwks().get_jwks().await?;
-passage.set_pub_jwk(pub_jwk)
+passage.set_pub_jwk(response.keys.first()?)
 
 // Verify a user's JWT
 let passage_id = passage.authenticate().authenticate_token(jwt)?;
@@ -57,9 +58,9 @@ let passage_id = passage.authenticate().authenticate_token(jwt)?;
 assert_eq!(passage_id, "AabRBkquedeVBxv9kFyfeXHI".to_owned());
 ```
 
-# Get information about or modify
+Once you have verified the user, your app can do its thing! This library is almost feature-complete with the Passage auth API, so you can do a lot more. For example:
 
-Only you have verified the user, your app can do it's thing, but this library is almost feature complete with the Passage auth API, so you can do a lot more, for example:
+# Get information about a user
 
 ```rust
 let passage = Passage::with_config(
@@ -69,10 +70,11 @@ let passage = Passage::with_config(
 );
 let response: CurrentUserResponse = passage.current_user().get_current_user().await?;
 
+println!(response.user)
 CurrentUserResponse { user: CurrentUser { created_at: "2024-05-25T12:14:42.420571Z", email: "ted@tedlasso.org", email_verified: true, id: "AabRBkquedeVBxv9kFyfeXHI", last_login_at: "2024-05-25T14:27:53.825045Z", login_count: 3, phone: "", phone_verified: false, social_connections: UserSocialConnections { apple: None, github: None, google: None }, status: Active, updated_at: "2024-05-25T14:27:53.975632Z", user_metadata: None, webauthn: false, webauthn_devices: [], webauthn_types: [] } }
 ```
 
-# Refresh or revoke refresh tokens
+# Refresh tokens or revoke a refresh token
 
 ```rust
 // APP ID loaded via environment variable
