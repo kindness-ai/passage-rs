@@ -7,6 +7,7 @@ mod open_id;
 mod otp;
 mod register;
 mod tokens;
+mod users;
 
 pub use authenticate::Authenticate;
 pub use current_user::CurrentUser;
@@ -17,3 +18,4 @@ pub use open_id::OpenId;
 pub use otp::Otp;
 pub use register::Register;
 pub use tokens::Tokens;
+pub use users::Users;

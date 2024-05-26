@@ -1,7 +1,9 @@
 use serde::{de::DeserializeOwned, Serialize};
 
 use crate::{
-    apis::{Authenticate, CurrentUser, Jwks, Login, MagicLink, OpenId, Otp, Register, Tokens},
+    apis::{
+        Authenticate, CurrentUser, Jwks, Login, MagicLink, OpenId, Otp, Register, Tokens, Users,
+    },
     config::Config,
     error::ApiError,
     PassageError,
@@ -110,6 +112,11 @@ impl Passage<Config> {
         CurrentUser::new(self)
     }
 
+    /// To call [Users] group related APIs using this client.
+    pub fn user(&self) -> Users<Config> {
+        Users::new(self)
+    }
+
     pub fn app_id(&self) -> &str {
         self.config.app_id()
     }
@@ -131,6 +138,29 @@ impl Passage<Config> {
             .http_client
             .get(self.config.url(path))
             .query(&self.config.query())
+            .headers(self.config.bearer_auth())
+            .send()
+            .await?;
+
+        self.deserialize_response(response).await
+    }
+
+    /// Make a GET request to {path} with given Query and deserialize the
+    /// response body
+    pub(crate) async fn get_with_query<Q, O>(
+        &self,
+        path: &str,
+        query: &Q,
+    ) -> Result<O, PassageError>
+    where
+        O: DeserializeOwned,
+        Q: Serialize + ?Sized,
+    {
+        let response = self
+            .http_client
+            .get(self.config.url(path))
+            .query(&self.config.query())
+            .query(query)
             .headers(self.config.bearer_auth())
             .send()
             .await?;

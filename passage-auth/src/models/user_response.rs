@@ -4,7 +4,8 @@ use crate::models;
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UserResponse {
-    #[serde(rename = "user", deserialize_with = "Option::deserialize")]
+    #[serde(deserialize_with = "Option::deserialize")]
+    /// None if the user is not found.
     pub user: Option<Box<models::User>>,
 }
 
