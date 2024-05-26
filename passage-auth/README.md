@@ -46,10 +46,15 @@ The library reads your Passage APP ID from the environment variable `PASSAGE_APP
 ```rust
 // Create a new passage instance
 let passage = Passage::with_config(Config::default().with_app_id(APP_ID.to_string()));
-// Get the JWKS for your app containing the use the JWK's public key to verify a user's JWT.
-let response: JwkResponse = passage.jwks().get_jwks().await?;
-// Verify a user's JWT
 
+// Get the JWKS for your Passage app containing the use the JWK's public key to verify a user's JWT.
+let response: JwkResponse = passage.jwks().get_jwks().await?;
+passage.set_pub_jwk(pub_jwk)
+
+// Verify a user's JWT
+let passage_id = passage.authenticate().authenticate_token(jwt)?;
+
+assert_eq!(passage_id, "AabRBkquedeVBxv9kFyfeXHI".to_owned());
 ```
 
 # Get information about or modify
@@ -70,7 +75,7 @@ CurrentUserResponse { user: CurrentUser { created_at: "2024-05-25T12:14:42.42057
 # Refresh or revoke refresh tokens
 
 ```rust
-// APP ID loaded via environment vairable
+// APP ID loaded via environment variable
 let passage = Passage::new();
 
 // Refresh tokens
