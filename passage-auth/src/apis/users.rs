@@ -30,8 +30,9 @@ impl<'c> Users<'c, Config> {
     }
 
     /// Create a new user if the Passage app is configured for Public Signups
-    /// 
-    /// Without Public Signups, you'll need to use the `passage-manage` and an API key
+    ///
+    /// Without Public Signups, you'll need to use the `passage-manage` and an
+    /// API key
     pub async fn create_user(
         &self,
         request: CreateUserParams,
@@ -39,6 +40,16 @@ impl<'c> Users<'c, Config> {
         let app_id = self.client.app_id();
         self.client
             .post(&format!("/apps/{app_id}/users"), request)
+            .await
+    }
+
+    /// Get a user by their passage id (requires an API key)
+    ///
+    /// TODO: This need to be moved to the `passage-manage` crate when it exists
+    pub async fn get_user_by_id(&self, user_id: &str) -> Result<UserResponse, PassageError> {
+        let app_id = self.client.app_id();
+        self.client
+            .get_from_management_api(&format!("/apps/{app_id}/users/{user_id}"))
             .await
     }
 }
@@ -51,15 +62,18 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_user_found() {
-        let client =
-            Passage::with_config(Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()));
+        let client = Passage::with_config(
+            Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()),
+        );
         let response = client
             .users()
             .get_user("ted@tedlasso.org".into())
             .await
             .unwrap();
 
-        let user = response.user.expect("We should be able to find Ted, unless the server is down.");
+        let user = response
+            .user
+            .expect("We should be able to find Ted, unless the server is down.");
 
         assert_eq!(user.id, "AabRBkquedeVBxv9kFyfeXHI");
         assert_eq!(user.email, "ted@tedlasso.org");
@@ -68,8 +82,9 @@ mod tests {
 
     #[tokio::test]
     async fn test_get_user_missing() {
-        let client =
-            Passage::with_config(Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()));
+        let client = Passage::with_config(
+            Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()),
+        );
         let response = client
             .users()
             .get_user("rupert.mannion@tedlasso.org".into())
@@ -104,5 +119,19 @@ mod tests {
 
         assert_eq!(user.email, format!("{local_part}@tedlasso.org"));
         assert_eq!(user.email_verified, false);
+    }
+
+    #[tokio::test]
+    async fn get_user_by_id() {
+        let client = Passage::with_config(
+            Config::default()
+                .with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".into())
+                .with_api_key("enter_a_real_api_key_here".into()),
+        );
+
+        let _ = client
+            .users()
+            .get_user_by_id("AabRBkquedeVBxv9kFyfeXHI".into())
+            .await;
     }
 }

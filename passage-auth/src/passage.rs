@@ -163,6 +163,27 @@ impl Passage<Config> {
         self.deserialize_response(response).await
     }
 
+    /// Make a GET request to the Passage management API and deserialize the
+    /// response body
+    ///
+    /// This is temporary until the `passage-manage` crate is created
+    pub(crate) async fn get_from_management_api<O>(&self, path: &str) -> Result<O, PassageError>
+    where
+        O: DeserializeOwned,
+    {
+        let response = self
+            .http_client
+            .get(format!("https://api.passage.id/v1{}", path))
+            .query(&self.config.query())
+            .headers(self.config.api_key_auth())
+            .send()
+            .await?;
+
+        dbg!(&response);
+
+        self.deserialize_response(response).await
+    }
+
     /// Make a POST request to {path} and deserialize the response body
     pub(crate) async fn post<I, O>(&self, path: &str, request: I) -> Result<O, PassageError>
     where
