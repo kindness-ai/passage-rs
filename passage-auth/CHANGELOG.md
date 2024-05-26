@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.1.4 (2024-05-26)
+
+- Resubmitting to crates.io
+
 ## 0.1.3 (2024-05-26)
 
 - Added the support for the Passage auth Users endpoint (get_user, create_user)

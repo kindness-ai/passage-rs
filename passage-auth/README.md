@@ -1,5 +1,5 @@
 <div align="center">
-  <img width="400px" src="https://github.com/Kindness-Works/passage-rs/blob/main/docs/passage.jpg" />
+  <img width="400px" src="https://raw.githubusercontent.com/Kindness-Works/passage-rs/main/docs/passage.jpg" />
 </div>
 <h1 align="center"> passage-auth </h1>
 <p align="center"> Passage Authentication Library for Rust! 🦀 </p>
