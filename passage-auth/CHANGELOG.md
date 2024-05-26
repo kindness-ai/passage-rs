@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.2.1 (2024-05-26)
+
+- Temporarily added `users().get_user_by_id` until we have the `passage-manage` crate published
+
 ## 0.2.0 (2024-05-26)
 
 - Changed `passage.user()` to `passage.users()` to accurately reflect the correct endpoint name

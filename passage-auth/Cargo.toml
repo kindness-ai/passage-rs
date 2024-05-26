@@ -1,6 +1,6 @@
 [package]
 name = "passage-auth"
-version = "0.2.0"
+version = "0.2.1"
 description = "Authentication API for Passage by 1Password"
 repository = "https://github.com/Kindness-Works/passage-rs"
 license = "MIT"
