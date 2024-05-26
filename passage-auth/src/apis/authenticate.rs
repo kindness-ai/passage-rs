@@ -17,12 +17,12 @@ struct Claims {
     sub: String,
 }
 
-pub struct Authenticate<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct Authenticate<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> Authenticate<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> Authenticate<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

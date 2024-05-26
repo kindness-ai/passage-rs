@@ -3,12 +3,12 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct Tokens<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct Tokens<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> Tokens<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> Tokens<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

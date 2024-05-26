@@ -13,12 +13,12 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct CurrentUser<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct CurrentUser<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> CurrentUser<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> CurrentUser<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

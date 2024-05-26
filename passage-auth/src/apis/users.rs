@@ -6,17 +6,15 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct Users<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct Users<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> Users<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> Users<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
-}
 
-impl<'c> Users<'c, Config> {
     /// Get information about a user, given the user's identifier (email or
     /// phone number)
     pub async fn get_user(&self, identifier: &str) -> Result<UserResponse, PassageError> {

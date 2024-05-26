@@ -3,12 +3,12 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct Jwks<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct Jwks<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> Jwks<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> Jwks<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

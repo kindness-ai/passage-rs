@@ -5,12 +5,12 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct OAuth2<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct OAuth2<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> OAuth2<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> OAuth2<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

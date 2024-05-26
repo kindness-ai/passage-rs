@@ -8,12 +8,12 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct Register<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct Register<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> Register<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> Register<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

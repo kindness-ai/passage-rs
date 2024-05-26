@@ -10,18 +10,18 @@ use crate::{
 };
 
 #[derive(Debug, Clone)]
-pub struct Passage<Config> {
+pub struct Passage {
     http_client: reqwest::Client,
     config: Config,
 }
 
-impl Default for Passage<Config> {
+impl Default for Passage {
     fn default() -> Self {
         Self::new()
     }
 }
 
-impl Passage<Config> {
+impl Passage {
     /// Creates a new [Passage] for interacting with the Passage API.
     pub fn new() -> Self {
         Self {
@@ -31,7 +31,7 @@ impl Passage<Config> {
     }
 }
 
-impl Passage<Config> {
+impl Passage {
     /// Create client with a custom HTTP client if needed.
     pub fn build(http_client: reqwest::Client, config: Config) -> Self {
         Self {
@@ -63,53 +63,57 @@ impl Passage<Config> {
     // API groups
 
     /// To call the [Tokens] group related APIs using this client.
-    pub fn tokens(&self) -> Tokens<Config> {
+    pub fn tokens(&self) -> Tokens {
         Tokens::new(self)
     }
 
     /// To call [Register] group related APIs using this client.
-    pub fn register(&self) -> Register<Config> {
+    pub fn register(&self) -> Register {
         Register::new(self)
     }
 
     /// To call [Otp] group related APIs using this client.
-    pub fn otp(&self) -> Otp<Config> {
+    pub fn otp(&self) -> Otp {
         Otp::new(self)
     }
 
     /// To call [OpenId] group related APIs using this client.
-    pub fn open_id(&self) -> OpenId<Config> {
+    pub fn open_id(&self) -> OpenId {
         OpenId::new(self)
     }
 
     /// To call [MagicLink] group related APIs using this client.
-    pub fn magic_link(&self) -> MagicLink<Config> {
+    pub fn magic_link(&self) -> MagicLink {
         MagicLink::new(self)
     }
 
     /// To call [Login] group related APIs using this client.
-    pub fn login(&self) -> Login<Config> {
+    pub fn login(&self) -> Login {
         Login::new(self)
     }
 
     /// To call [Jwks] group related APIs using this client.
-    pub fn jwks(&self) -> Jwks<Config> {
+    pub fn jwks(&self) -> Jwks {
         Jwks::new(self)
     }
 
     /// To call [Authenticate] group related APIs using this client.
-    pub fn authenticate(&self) -> Authenticate<Config> {
+    pub fn authenticate(&self) -> Authenticate {
         Authenticate::new(self)
     }
 
     /// To call [CurrentUser] group related APIs using this client.
-    pub fn current_user(&self) -> CurrentUser<Config> {
+    pub fn current_user(&self) -> CurrentUser {
         CurrentUser::new(self)
     }
 
     /// To call [Users] group related APIs using this client.
-    pub fn users(&self) -> Users<Config> {
+    pub fn users(&self) -> Users {
         Users::new(self)
+    }
+
+    pub fn app_auth_origin(&self) -> &str {
+        self.config.app_auth_origin()
     }
 
     pub fn app_id(&self) -> &str {

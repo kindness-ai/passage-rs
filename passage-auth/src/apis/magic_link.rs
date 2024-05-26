@@ -6,12 +6,12 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct MagicLink<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct MagicLink<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> MagicLink<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> MagicLink<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

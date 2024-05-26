@@ -3,12 +3,12 @@ use crate::{
     Config, Passage, PassageError,
 };
 
-pub struct Otp<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct Otp<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> Otp<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> Otp<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 

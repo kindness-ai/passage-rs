@@ -1,11 +1,11 @@
 use crate::{models::open_id_configuration::OpenIdConfiguration, Config, Passage, PassageError};
 
-pub struct OpenId<'c, Config> {
-    client: &'c Passage<Config>,
+pub struct OpenId<'c> {
+    client: &'c Passage,
 }
 
-impl<'c> OpenId<'c, Config> {
-    pub fn new(client: &'c Passage<Config>) -> Self {
+impl<'c> OpenId<'c> {
+    pub fn new(client: &'c Passage) -> Self {
         Self { client }
     }
 
