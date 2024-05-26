@@ -52,11 +52,6 @@ impl Passage<Config> {
         self
     }
 
-    pub fn set_api_key(mut self, api_key: String) -> Self {
-        self.config = self.config.with_api_key(api_key);
-        self
-    }
-
     /// Provide a custom [client] to make all HTTP requests with.
     ///
     /// [client]: reqwest::Client

@@ -6,7 +6,6 @@ pub const PASSAGE_AUTH_API_BASE: &str = "https://auth.passage.id/v1";
 #[derive(Clone, Debug)]
 pub struct Config {
     api_base: String,
-    api_key: Option<String>,
     app_id: String,
     pub_jwk: Option<String>,
     user_bearer_token: Option<String>,
@@ -16,7 +15,6 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             api_base: PASSAGE_AUTH_API_BASE.into(),
-            api_key: std::env::var("PASSAGE_API_KEY").ok(),
             app_id: std::env::var("PASSAGE_APP_ID").unwrap_or_else(|_| "".to_string()),
             pub_jwk: std::env::var("PASSAGE_PUB_JWK").ok(),
             user_bearer_token: None,
@@ -31,11 +29,6 @@ impl Config {
 
     pub fn with_api_base(mut self, api_base: String) -> Self {
         self.api_base = api_base;
-        self
-    }
-
-    pub fn with_api_key(mut self, api_key: String) -> Self {
-        self.api_key = Some(api_key);
         self
     }
 
