@@ -54,7 +54,7 @@ impl<'c> Users<'c> {
 
 #[cfg(test)]
 mod tests {
-    use rand::{distributions::Alphanumeric, Rng};
+    use rand::Rng;
 
     use super::*;
 
@@ -96,8 +96,8 @@ mod tests {
             Config::default().with_app_id("PaItOH7Ul7n2Xt3uxY671sFN".to_string()),
         );
 
-        let local_part = rand::thread_rng()
-            .sample_iter(&Alphanumeric)
+        let local_part = rand::rng()
+            .sample_iter(&rand::distr::Alphanumeric)
             .take(20)
             .map(char::from)
             .collect::<String>()
