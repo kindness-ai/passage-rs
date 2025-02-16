@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.4.1](https://github.com/kindness-ai/passage-rs/compare/v0.4.0...v0.4.1) - 2025-02-16
+
+### Other
+
+- Update deps
+
 ## 0.4.0 (2024-05-26)
 
 - Fixed: `authenticate().authenticate_token` error not wrapped in `PassageError`
